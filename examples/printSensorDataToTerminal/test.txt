@@ -1,0 +1,42 @@
+
+Rückgabewert formatieren:
+
+das ist normaler Rückgabe wert von der 3. Abfrage:
+
+0+31.2+2.1-90.0+1.00
+
+uint_16
+float
+float
+float
+float
+
+
+
+
+0+0.79+0.00+41+0+0.00+0+0.79+0.20+0.00+0+0+0+0+27.4+2.1-90.0+1.00
+
+  uint16_t sensorAdress1;
+  float filteredLevel;
+  float filteredVelo;
+  uint16_t SNRlevel;
+  
+  uint16_t SNRvelo;
+  float discharge;
+  uint16_t sensorAdress2;
+  float currentLevel;
+  
+  float currentDistance;
+  float  currentVelo;
+  uint16_t qualityLevel;
+  uint16_t qualityVelo;
+  
+  uint16_t qualitydischarge;
+  uint16_t sensorAdress3;
+  float temp;
+  float tiltX;
+  
+  float tiltY;
+  float heightAboveRef;
+
+0 0.79 0.00 42 0 0.00 0 0.79 0.20 0.00 0 0 0 0 27.7 2.2 -87.6 1.00
