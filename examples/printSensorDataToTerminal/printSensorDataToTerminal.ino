@@ -62,6 +62,7 @@ void loop()
     Serial.print("current distance: "); Serial.println(extractCurrentDistance());
     Serial.print("discharge: "); Serial.println(extractDischarge());
     Serial.print("alive bit: "); Serial.println(alive_bit);
+
   }
 
   alive_bit++;
