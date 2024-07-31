@@ -5,27 +5,34 @@ All rights reserved.
 This source code is licensed under the BSD-style license found in the
 LICENSE file in the root directory of this source tree. 
 */
-
-
 #include "hyquant.h"  //  Header file for this library
 
-struct HyQuant_Data SensorData;
 String rawSensorResponse;
 
-float extractFilteredLevel()
+void writeSensorDataToStruct(HyQuant_Data& SensorData)
 {
-  return getValue(rawSensorResponse, ' ', 1).toFloat();
+  SensorData.sensorAdress1    = getValue(rawSensorResponse, ' ', 0).toInt();
+  SensorData.filteredLevel    = getValue(rawSensorResponse, ' ', 1).toFloat();
+  SensorData.filteredVelo     = getValue(rawSensorResponse, ' ', 2).toFloat();
+  SensorData.SNRlevel         = getValue(rawSensorResponse, ' ', 3).toInt();
+  SensorData.SNRvelo          = getValue(rawSensorResponse, ' ', 4).toInt();
+  SensorData.discharge        = getValue(rawSensorResponse, ' ', 5).toFloat();
+
+  SensorData.sensorAdress2    = getValue(rawSensorResponse, ' ', 6).toInt();
+  SensorData.currentLevel     = getValue(rawSensorResponse, ' ', 7).toFloat();
+  SensorData.currentDistance  = getValue(rawSensorResponse, ' ', 8).toFloat();
+  SensorData.currentVelo      = getValue(rawSensorResponse, ' ', 9).toFloat();
+  SensorData.qualityLevel     = getValue(rawSensorResponse, ' ', 10).toInt();
+  SensorData.qualityVelo      = getValue(rawSensorResponse, ' ', 11).toInt();
+  SensorData.qualitydischarge = getValue(rawSensorResponse, ' ', 12).toInt();
+
+  SensorData.sensorAdress3    = getValue(rawSensorResponse, ' ', 13).toInt();
+  SensorData.temp             = getValue(rawSensorResponse, ' ', 14).toFloat();
+  SensorData.tiltY            = getValue(rawSensorResponse, ' ', 15).toFloat();
+  SensorData.tiltY            = getValue(rawSensorResponse, ' ', 16).toFloat();
+  SensorData.heightAboveRef   = getValue(rawSensorResponse, ' ', 17).toFloat();
 }
 
-float extractCurrentDistance()
-{
-  return getValue(rawSensorResponse, ' ', 8).toFloat();
-}
-
-float extractDischarge()
-{
-  return getValue(rawSensorResponse, ' ', 5).toFloat();
-}
 
 String getValue(String data, char separator, int index)
 {
@@ -66,31 +73,31 @@ bool isAllZerosExceptLast(const String& str) {
   return true;  // All conditions met
 }
 
-// prints Struct to Terminal
-void printData()
+void setAllSensorDataZero(HyQuant_Data& SensorData)
 {
-  Serial.print("# sensor adress: "); Serial.println(SensorData.sensorAdress1);
-  Serial.print("# filtered level: "); Serial.println(SensorData.filteredLevel,2);
-  Serial.print("# filtered velocity: "); Serial.println(SensorData.filteredVelo,2);
-  Serial.print("# SNR level: "); Serial.println(SensorData.SNRlevel);
-  Serial.print("# SNR velocity: "); Serial.println(SensorData.SNRvelo);
-  Serial.print("# discharge: "); Serial.println(SensorData.discharge,2);
+  SensorData.sensorAdress1    = 0;
+  SensorData.filteredLevel    = 0;
+  SensorData.filteredVelo     = 0;
+  SensorData.SNRlevel         = 0;
+  SensorData.SNRvelo          = 0;
+  SensorData.discharge        = 0;
 
-  Serial.print("# sensor adress: "); Serial.println(SensorData.sensorAdress2);
-  Serial.print("# current level: "); Serial.println(SensorData.currentLevel,2);
-  Serial.print("# current distance: "); Serial.println(SensorData.currentDistance,2);
-  Serial.print("# current velocity: "); Serial.println(SensorData.currentVelo,2);
-  Serial.print("# quality level: "); Serial.println(SensorData.qualityLevel);
-  Serial.print("# quality discharge: "); Serial.println(SensorData.qualitydischarge);
+  SensorData.sensorAdress2    = 0;
+  SensorData.currentLevel     = 0;
+  SensorData.currentDistance  = 0;
+  SensorData.currentVelo      = 0;
+  SensorData.qualityLevel     = 0;
+  SensorData.qualityVelo      = 0;
+  SensorData.qualitydischarge = 0;
 
-  Serial.print("# sensor adress: ");            Serial.println(SensorData.sensorAdress3);
-  Serial.print("# temperature in enclosure: "); Serial.println(SensorData.temp,2);
-  Serial.print("# tilt angle x direction: ");   Serial.println(SensorData.tiltX,2);
-  Serial.print("# tilt angle y direction: ");   Serial.println(SensorData.tiltY,2);
-  Serial.print("# sensor height above reference: "); Serial.println(SensorData.heightAboveRef,2);
+  SensorData.sensorAdress3    = 0;
+  SensorData.temp             = 0;
+  SensorData.tiltY            = 0;
+  SensorData.tiltY            = 0;
+  SensorData.heightAboveRef   = 0;
 }
 
-bool isOnline(RAK_SDI12 mySDI12)
+bool isOnline(RAK_SDI12& mySDI12)
 {
   mySDI12.sendCommand(String(SENSOR_ADDRESS) + "!");
     static String sdiResponse;
@@ -108,7 +115,7 @@ bool isOnline(RAK_SDI12 mySDI12)
 }
 
 // read all the sensor parameters: 0M! 0M1! 0M2!
-bool getParameters(RAK_SDI12 mySDI12){
+bool getParameters(RAK_SDI12& mySDI12, HyQuant_Data& SensorData){
 
   static String sdiResponse;
   static String sdiResponse1;
@@ -117,6 +124,9 @@ bool getParameters(RAK_SDI12 mySDI12){
 
   // checking if sensor is running
   if(isOnline(mySDI12) == false)
+
+    // Sensor not running ... setting all data to zero
+    setAllSensorDataZero(SensorData);
     return 0;
 
   //three Data sets need to be collected
@@ -159,6 +169,9 @@ bool getParameters(RAK_SDI12 mySDI12){
 
     }else{
       Serial.println("Sensor is still processing data, waiting ...");
+
+      // Sensor processing ... setting all data to zero
+      setAllSensorDataZero(SensorData);
       return 0;
     }
   }
@@ -169,8 +182,7 @@ bool getParameters(RAK_SDI12 mySDI12){
   rawSensorResponse = replacePlusWithSpace(rawSensorResponse);
   rawSensorResponse = insertSpaceBeforeMinus(rawSensorResponse);
 
-  extractFilteredLevel();
-  extractDischarge();
+  writeSensorDataToStruct(SensorData);
 
   return true; // all conditions met
 }

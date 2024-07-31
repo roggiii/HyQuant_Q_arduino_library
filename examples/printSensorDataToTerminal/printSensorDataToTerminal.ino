@@ -12,9 +12,11 @@ LICENSE file in the root directory of this source tree.
 #define RX_PIN    WB_IO5   // The pin of the SDI-12 data bus.
 #define OE        WB_IO4   // Output enable pin, active low.
 
+// create SDI-12-bus-object
 RAK_SDI12 mySDI12(RX_PIN,TX_PIN,OE);
 
-  int alive_bit = 0;
+// getParamers() writes sensor data to this struct
+struct HyQuant_Data SensorData;
 
 void setup()
 {
@@ -38,32 +40,19 @@ void setup()
   mySDI12.begin();
   delay(500);
 
-  //mySDI12.forceListen(); did make problems when the sensor was starting up
-
 
 }
 
 void loop() 
 {
-  if (Serial.available()) 
-  {
-    char inByte1 = Serial.read();
-    if (inByte1 == '\r' || inByte1 == '\n') 
-    {
-      if(getParameters(mySDI12))
-      {
-      }
-      
-    } 
-  }
-  if(getParameters(mySDI12)){
+
+  if(getParameters(mySDI12, SensorData)){
     Serial.println("-------- Sensor Data ------------");
-    Serial.print("filtered sensor level: "); Serial.println(extractFilteredLevel());
-    Serial.print("current distance: "); Serial.println(extractCurrentDistance());
-    Serial.print("discharge: "); Serial.println(extractDischarge());
-    Serial.print("alive bit: "); Serial.println(alive_bit);
+    Serial.print("filtered sensor level: "); Serial.println(SensorData.filteredLevel);
+    Serial.print("current distance: "); Serial.println(SensorData.currentDistance);
+    Serial.print("discharge: "); Serial.println(SensorData.discharge);
 
   }
 
-  alive_bit++;
+
 }

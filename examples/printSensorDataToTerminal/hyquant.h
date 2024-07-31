@@ -14,17 +14,6 @@ LICENSE file in the root directory of this source tree.
 
 #define SENSOR_ADDRESS '0'
 
-// checks if sensor is online
-bool isOnline(RAK_SDI12 mySDI12);
-
-// requests data from the sensor
-bool getParameters(RAK_SDI12 mySDI12);
-
-// returns specified variables
-float extractFilteredLevel(void);
-float extractDischarge(void);
-float extractCurrentDistance(void);
-
 // Data structure for response to command "xM!"
 struct HyQuant_Data {
   uint16_t sensorAdress1;
@@ -49,11 +38,18 @@ struct HyQuant_Data {
   float heightAboveRef;
 };
 
-// prints all the data from the sensor to the commandline
-void printData();
+// checks if sensor is online
+bool isOnline(RAK_SDI12& mySDI12);
+
+// requests data from the sensor
+bool getParameters(RAK_SDI12& mySDI12, HyQuant_Data& SensorData);
+
+// in an error condition set all sensor parameters to zero
+void setAllSensorDataZero(HyQuant_Data& SensorData);
 
 
 // String mangeling
+void writeSensorDataToStruct(HyQuant_Data& SensorData);
 String insertSpaceBeforeMinus(const String& input);
 String replacePlusWithSpace(const String& input);
 String getValue(String data, char separator, int index);
