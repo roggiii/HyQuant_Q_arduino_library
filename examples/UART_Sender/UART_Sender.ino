@@ -26,6 +26,8 @@ delay(1000);
 
 }
 
+// missing: delimitor to signalize begining of the string
+
 void send (const uart_data_structure* table)
 {
   Serial.write((uint8_t*)table, data_size);  // 2 bytes.
